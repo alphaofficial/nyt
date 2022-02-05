@@ -31,6 +31,9 @@ const articles = createSlice({
       state.loading = false;
       state.error = payload;
     });
+    builder.addCase(thunks.fetchArticle.pending, (state) => {
+      state.loading = true;
+    });
     builder.addCase(thunks.fetchArticle.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.error = null;

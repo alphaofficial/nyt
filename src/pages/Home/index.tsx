@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BiSearch } from "react-icons/bi";
 import classNames from "classnames";
 import { nanoid } from "nanoid";
-import { BiSearch } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
 
 /** components */
-import { Layout } from "@/components";
+import {
+  Layout,
+  ArticleItem,
+  Pagination,
+  Loader,
+  ErrorBox,
+} from "@/components";
 
 /** custome hooks */
 import { useQuery } from "@/lib/hooks";
@@ -25,8 +31,13 @@ const Home = () => {
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const { articles, loading } = useAppSelector((state) => state.articles);
   const [buttonClicked, setButtonClicked] = useState(false);
+
+  const { articles, loading, error } = useAppSelector(
+    (state) => state.articles
+  );
+
+  const hasArticles = useMemo(() => articles.length > 0, [articles]);
 
   const handleSearch = async (e: any) => {
     const { value } = e.target;
@@ -38,6 +49,9 @@ const Home = () => {
       );
     }, 1500);
   };
+
+  const handleDetails = (url: string) =>
+    navigate(`/details?url=${url}&p=${page}&q=${query}`);
 
   const handleNextPage = () => {
     setPage((prevState) => prevState + 1);
@@ -67,7 +81,9 @@ const Home = () => {
         })
       );
     }
-  }, [pageQuery, searchQuery]);
+  }, [dispatch, pageQuery, searchQuery]);
+
+  if (error) return <ErrorBox error={error} />;
 
   return (
     <Layout>
@@ -91,51 +107,39 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="mt-20">
-          <div>
-            <h2 className="font-bold">Result:</h2>
-          </div>
-          <div
-            className={classNames(
-              "w-full mt-2 border-2 rounded-md ease-in-out duration-300",
-              {
-                "animate-pulse": loading,
-              }
-            )}
-          >
-            {articles.map((article: any) => (
-              <div
-                key={nanoid()}
-                className={classNames(
-                  "bg-gray-100 py-4 px-4 last:border-b-0 border-b-2 border-gray-200 cursor-pointer hover:bg-gray-200",
-                  { "bg-gray-300": loading }
-                )}
-                onClick={() =>
-                  navigate(
-                    `/details?web_url=${article.web_url}&p=${page}&q=${query}`
-                  )
-                }
-              >
-                <h3 className={classNames("text-md", { "opacity-0": loading })}>
-                  {article.headline.main}
-                </h3>
-              </div>
-            ))}
-          </div>
-        </div>
+        {loading && !hasArticles && <Loader />}
 
-        <div className="mt-4 mb-20">
-          <div className="flex flex-row justify-between align-center">
-            <button
-              onClick={handlePreviousPage}
-              className="underline text-blue-600 cursor-pointer"
-            >{`< Prev page`}</button>
-            <button
-              onClick={handleNextPage}
-              className="underline text-blue-600 cursor-pointer"
-            >{`Next page >`}</button>
+        {hasArticles && (
+          <div className="mt-20">
+            <div>
+              <h2 className="font-bold">Result:</h2>
+            </div>
+            <div
+              className={classNames(
+                "w-full mt-2 border-2 rounded-md ease-in-out duration-300",
+                {
+                  "animate-pulse": loading,
+                }
+              )}
+            >
+              {articles.map((article: any) => (
+                <ArticleItem
+                  key={nanoid()}
+                  article={article}
+                  loading={loading}
+                  handleDetails={handleDetails}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {hasArticles && (
+          <Pagination
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePreviousPage}
+          />
+        )}
       </div>
     </Layout>
   );

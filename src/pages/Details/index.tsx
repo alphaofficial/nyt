@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import moment from "moment";
 
 /** components */
-import { Layout } from "@/components";
+import { ErrorBox, Layout, Loader } from "@/components";
 
 /** custome hooks */
 import { useQuery } from "@/lib/hooks";
@@ -17,27 +17,28 @@ const Detail = () => {
   const search = useQuery();
   const navigate = useNavigate();
 
-  const webUrl = search.get("web_url");
   const p = search.get("p");
   const q = search.get("q");
+  const url = search.get("url");
 
-  const { article } = useAppSelector((state) => state.articles);
+  const { article, loading, error } = useAppSelector((state) => state.articles);
 
   const handleBackToResults = () => {
     p && q ? navigate(`/?q=${q}&p=${p}`) : navigate(`/`);
   };
 
-  const handleFullArticle = () => navigate(article.web_url);
-
   useEffect(() => {
-    if (webUrl) {
+    if (url) {
       dispatch(
         ArticleStore.actions.fetchArticle({
-          fq: `web_url:"${webUrl}"`,
+          fq: `web_url:"${url}"`,
         })
       );
     }
-  }, [webUrl]);
+  }, [dispatch, url]);
+
+  if (loading) return <Loader />;
+  if (error) return <ErrorBox error={error} />;
 
   return (
     <Layout>
@@ -50,26 +51,30 @@ const Detail = () => {
                 className="font-bold underline text-blue-600 cursor-pointer"
               >{`< Go to results page`}</button>
             </div>
-
-            <div className="mt-8">
-              <h2 className="font-bold text-4xl">{article.headline.main}</h2>
-              <p className="italic mt-4">
-                {moment(article.pub_date).format("D.MM.YYYY")}
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <p>{article.lead_paragraph}</p>
-              <p>{article.abstract}</p>
-            </div>
-
-            <div className="mt-4">
-              <button
-                onClick={handleFullArticle}
-                className="font-bold underline text-blue-600 cursor-pointer"
-              >{`Read the full article`}</button>
-            </div>
           </div>
+          {article && (
+            <div>
+              <div className="mt-8">
+                <h2 className="font-bold text-4xl">{article.headline.main}</h2>
+                <p className="italic mt-4">
+                  {moment(article.pub_date).format("D.MM.YYYY")}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <p>{article.lead_paragraph}</p>
+                <p>{article.abstract}</p>
+              </div>
+
+              <div className="mt-4">
+                <a
+                  href={article.web_url}
+                  className="font-bold underline text-blue-600 cursor-pointer"
+                  target="_blank"
+                >{`Read the full article`}</a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Layout>

@@ -4,6 +4,10 @@
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
+### Preview
+
+Live preview at [https://nyt-app.vercel.app/](https://nyt-app.vercel.app/)
+
 ### Prerequisites
 
 Before we get started, we're going to need to make sure we have a few things installed and available on our machine.
@@ -44,12 +48,6 @@ yarn
 
 Create a `.env` file based on the [.env.example template](.env.example)
 
-Export the contents of the created `.env` file to the current terminal session.
-
-```bash
-set -o allexport; source .env; set +o allexport
-```
-
 Start the projects development server
 
 ```bash
@@ -57,8 +55,6 @@ yarn dev
 ```
 
 The project should now be available at http://localhost:3000
-
-![signup](https://i.ibb.co/pPrFW46/Screenshot-2022-01-07-at-3-25-03-AM.png)
 
 ## Technologies used
 

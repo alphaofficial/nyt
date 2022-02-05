@@ -8,11 +8,11 @@ export const fetchArticle = createAsyncThunk(
   async ({ fq }: FetchArticleArgs, { rejectWithValue }) => {
     try {
       const { data } = await api.get(
-        `/articlesearch.json?api-key=${process.env.REACT_APP_API_KEY}&fq=${fq}`
+        `/articlesearch.json?api-key=${process.env.REACT_APP_API_KEY}&fq=${fq}&fl=document_type,headline,pub_date,abstract,snippet,web_url,lead_paragraph`
       );
       return data.response.docs[0];
     } catch (error) {
-      rejectWithValue(error);
+      return rejectWithValue(error);
     }
   }
 );
