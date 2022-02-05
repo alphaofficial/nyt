@@ -1,4 +1,4 @@
-# NYT App
+# NYT Articles Search App
 
 ## Getting Started
 
